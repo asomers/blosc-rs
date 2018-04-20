@@ -1,0 +1,7 @@
+[package]
+name = "blosc-sys"
+version = "1.13.1"
+authors = ["Alan Somers <asomers@gmail.com>"]
+license = "MIT"
+categories = ["external-ffi-bindings"]
+keywords = ["compression"]

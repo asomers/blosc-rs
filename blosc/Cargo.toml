@@ -1,0 +1,21 @@
+[package]
+name = "blosc"
+version = "0.1.0"
+authors = ["Alan Somers <asomers@gmail.com>"]
+license = "MIT"
+description = """
+Rust bindings to the C-BLOSC compression library
+"""
+categories = ["api-bindings"]
+keywords = ["compression"]
+
+[dependencies]
+#blosc-sys = "1.13.1"
+libc = "0.1"
+
+#[patch.crates-io]
+blosc-sys = { path = "../blosc-sys" }
+
+[dev-dependencies]
+rand = "0.4"
+galvanic-test = "0.1.3"
