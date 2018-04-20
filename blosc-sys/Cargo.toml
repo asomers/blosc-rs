@@ -1,6 +1,6 @@
 [package]
 name = "blosc-sys"
-version = "1.13.1"
+version = "1.14.2"
 authors = ["Alan Somers <asomers@gmail.com>"]
 license = "MIT"
 categories = ["external-ffi-bindings"]

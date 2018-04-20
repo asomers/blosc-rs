@@ -181,8 +181,7 @@ impl Context {
         let mut complib: *mut c_char = ptr::null_mut();
         let mut version: *mut c_char = ptr::null_mut();
         let support = unsafe {
-            // first argument's type becomes const in BLOSC 1.14.0
-            blosc_get_complib_info(comp_ptr as *mut c_char,
+            blosc_get_complib_info(comp_ptr,
                                    &mut complib as *mut *mut c_char,
                                    &mut version as *mut *mut c_char)
         };

@@ -5,9 +5,7 @@ extern crate blosc;
 extern crate rand;
 
 use blosc::*;
-use rand::distributions::{Range, IndependentSample};
 use std::mem;
-
 
 // Ignored due to https://github.com/Blosc/c-blosc/issues/227 .
 #[ignore]
@@ -22,6 +20,7 @@ test_suite! {
     name round_trip;
 
     use super::*;
+    use rand::distributions::{Range, IndependentSample};
 
     fixture!(settings(blocksize: Option<usize>, clevel: Clevel,
                       compressor: Compressor,
