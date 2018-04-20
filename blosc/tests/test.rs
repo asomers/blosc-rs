@@ -11,9 +11,7 @@ use std::mem;
 #[ignore]
 #[test]
 fn test_invalid_compressor() {
-    let context = Context::new(None, Clevel::L2, Compressor::Invalid,
-                               ShuffleMode::None);
-    assert!(context.is_err());
+    assert!(Context::new().compressor(Compressor::Invalid).is_err())
 }
 
 test_suite! {
@@ -49,8 +47,11 @@ test_suite! {
         }
 
         setup(&mut self) {
-            Context::new(*self.blocksize, *self.clevel, *self.compressor,
-                         *self.shuffle_mode).unwrap()
+            Context::new()
+                .blocksize(*self.blocksize)
+                .clevel(*self.clevel)
+                .compressor(*self.compressor).unwrap()
+                .shuffle(*self.shuffle_mode)
         }
     });
 

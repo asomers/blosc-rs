@@ -15,8 +15,7 @@
 //! ```
 //! # use blosc::*;
 //! let data: Vec<u32> = vec![1, 1, 2, 5, 8, 13, 21, 34, 55, 89, 144];
-//! let ctx = Context::new(None, Clevel::L2, Compressor::BloscLZ,
-//!                        ShuffleMode::Byte).unwrap();
+//! let ctx = Context::new();
 //! let compressed = ctx.compress(&data[..]);
 //! let decompressed = decompress(&compressed).unwrap();
 //! assert_eq!(data, decompressed);
@@ -121,7 +120,7 @@ pub enum ShuffleMode {
 /// Holds basic settings for `compress` operations.
 #[derive(Clone, Copy, Debug)]
 pub struct Context {
-    blocksize: Option<usize>,
+    blocksize: usize,
     clevel: Clevel,
     compressor: Compressor,
     shuffle_mode: ShuffleMode
@@ -145,6 +144,51 @@ impl<T> Buffer<T> {
 }
 
 impl Context {
+    /// Select the `Context`'s blocksize.
+    ///
+    /// Blocksize is the amount of data the compressor will work on at one time.
+    /// Limiting it can improve the CPU's cache hit rate.  Increasing it can
+    /// improve compression.  Generally this should be `None`, in which case
+    /// Blosc will choose a sensible value.
+    pub fn blocksize(mut self, blocksize: Option<usize>) -> Self {
+        self.blocksize = blocksize.unwrap_or(0);
+        self
+    }
+
+    /// Select the `Context`'s compression level.
+    ///
+    /// Higher values will give better compression at the expense of speed.
+    pub fn clevel(mut self, clevel: Clevel) -> Self {
+        self.clevel = clevel;
+        self
+    }
+
+    /// Select the `Context`'s compression algorithm.
+    ///
+    /// Returns an error if the `compressor` is not enabled in this build of
+    /// C-Blosc.
+    pub fn compressor(mut self, compressor: Compressor) -> Result<Self, ()> {
+        let comp_ptr: *const c_char = compressor.into();
+        let mut complib: *mut c_char = ptr::null_mut();
+        let mut version: *mut c_char = ptr::null_mut();
+        let support = unsafe {
+            blosc_get_complib_info(comp_ptr,
+                                   &mut complib as *mut *mut c_char,
+                                   &mut version as *mut *mut c_char)
+        };
+        unsafe {
+            libc::free(complib as *mut libc::c_void);
+            libc::free(version as *mut libc::c_void);
+        }
+        if support >= 0 {
+            self.compressor = compressor;
+            Ok(self)
+        } else {
+            // Compressor not supported
+            Err(())
+        }
+    }
+
     /// Compress an array and return a newly allocated compressed buffer.
     pub fn compress<T>(&self, src: &[T]) -> Buffer<T> {
         let typesize = mem::size_of::<T>();
@@ -161,7 +205,7 @@ impl Context {
                 dest.as_mut_ptr() as *mut c_void,
                 dest_size,
                 self.compressor.into(),
-                self.blocksize.unwrap_or(0),
+                self.blocksize,
                 1)
         };
         // Blosc's docs claim that blosc_compress_ctx should never return an
@@ -176,44 +220,32 @@ impl Context {
         Buffer::from_vec(dest)
     }
 
-    /// Create a context.
+    /// Build a default compression context.
     ///
-    /// Returns a new context unless the `compressor` is not enabled in this
-    /// build of C-Blosc.
+    /// # Example
     ///
-    /// # Parameters
-    ///
-    /// - `blocksize`:      Blocksize is the amount of data the compressor will
-    ///                     work on at one time.  Limiting it can improve the
-    ///                     CPU's cache hit rate.  Increasing it can improve
-    ///                     compression.  Generally this should be `None`, in
-    ///                     which case Blosc will choose a sensible value.
-    /// - `clevel`:         Compression level.  Higher values will give better
-    ///                     compression at the expense of speed.
-    /// - `compressor`:     Compressor algorithm to use.
-    /// - `shuffle_mode`:   Selects which Shuffle filter to apply before
-    ///                     compression.
-    pub fn new(blocksize: Option<usize>, clevel: Clevel, compressor: Compressor,
-           shuffle_mode: ShuffleMode) -> Result<Self, ()> {
+    /// ```
+    /// # use blosc::*;
+    /// # #[allow(unused)]
+    /// let ctx = Context::new()
+    ///     .blocksize(Some(262144))
+    ///     .compressor(Compressor::Zstd).unwrap()
+    ///     .clevel(Clevel::L9)
+    ///     .shuffle(ShuffleMode::Bit);
+    /// ```
+    pub fn new() -> Self {
+        Context{
+            blocksize: 0,       // Automatic blocksize
+            clevel: Clevel::L2, // Level 2 selects blocksize to equal L1 cache
+            compressor: Compressor::BloscLZ,    // Default algorithm
+            shuffle_mode: ShuffleMode::None     // Don't shuffle by default
+        }
+    }
 
-        let comp_ptr: *const c_char = compressor.into();
-        let mut complib: *mut c_char = ptr::null_mut();
-        let mut version: *mut c_char = ptr::null_mut();
-        let support = unsafe {
-            blosc_get_complib_info(comp_ptr,
-                                   &mut complib as *mut *mut c_char,
-                                   &mut version as *mut *mut c_char)
-        };
-        unsafe {
-            libc::free(complib as *mut libc::c_void);
-            libc::free(version as *mut libc::c_void);
-        }
-        if support >= 0 {
-            Ok(Context {blocksize, clevel, compressor, shuffle_mode})
-        } else {
-            // Compressor not supported
-            Err(())
-        }
+    /// Select which Shuffle filter to apply before compression.
+    pub fn shuffle(mut self, shuffle_mode: ShuffleMode) -> Self {
+        self.shuffle_mode = shuffle_mode;
+        self
     }
 }
 
