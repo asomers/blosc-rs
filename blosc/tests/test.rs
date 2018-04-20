@@ -64,11 +64,9 @@ test_suite! {
 
         let encoded = settings.val.compress(&sample[..]);
         let srclen = sample.len() * mem::size_of::<u32>();
-        let ratio = srclen as f64 / encoded.len() as f64;
+        let ratio = srclen as f64 / encoded.size() as f64;
         println!("Compression ratio: {}", ratio);
-        let decoded = unsafe {
-            decompress(&encoded[..]).unwrap()
-        };
+        let decoded = decompress(&encoded).unwrap();
         assert_eq!(sample, decoded);
     }
 }

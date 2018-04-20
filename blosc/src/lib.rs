@@ -1,5 +1,5 @@
 // vim: tw=80
-//! Rust bindings for the C-BLOSC block-oriented compression library.
+//! Rust bindings for the C-Blosc block-oriented compression library.
 //!
 //! Blosc is a high performance compressor optimized for binary data.  It is
 //! especially good at compressing arrays of similar data.  For example, floats
@@ -18,7 +18,7 @@
 //! let ctx = Context::new(None, Clevel::L2, Compressor::BloscLZ,
 //!                        ShuffleMode::Byte).unwrap();
 //! let compressed = ctx.compress(&data[..]);
-//! let decompressed = unsafe { decompress(&compressed[..]) }.unwrap();
+//! let decompressed = decompress(&compressed).unwrap();
 //! assert_eq!(data, decompressed);
 //! ```
 
@@ -28,6 +28,7 @@ extern crate libc;
 use blosc_sys::*;
 use std::{mem, ptr};
 use std::convert::Into;
+use std::marker::PhantomData;
 use std::os::raw::{c_char, c_int, c_void};
 
 /// The desired compression level.  Higher levels mean more compression.
@@ -58,17 +59,18 @@ pub enum Compressor {
     /// The default compressor, based on FastLZ.  It's very fast, but the
     /// compression isn't as good as the other compressors.
     BloscLZ,
-    /// Another fast compressor.  http://www.lz4.org/
+    /// Another fast compressor.  See [lz4.org](http://www.lz4.org).
     LZ4,
-    /// Slower, higher compression version of LZ4.  http://www.lz4.org/
+    /// Slower, higher compression version of LZ4.
+    /// See [lz4.org](http://www.lz4.org).
     LZ4HC,
-    /// Another fast compressor from Google.  https://github.com/google/snappy
+    /// Another fast compressor from Google.  See [Snappy](https://github.com/google/snappy)
     Snappy,
     /// The venerable Zlib.  Slower, but better compression than most other
-    /// algorithms.  https://www.zlib.net
+    /// algorithms.  See [zlib.net](https://www.zlib.net)
     Zlib,
     /// A high compression algorithm from Facebook.
-    /// https://facebook.github.io/zstd/
+    /// See [zstd](https://facebook.github.io/zstd).
     Zstd,
     /// For testing purposes only
     #[doc(hidden)]
@@ -102,7 +104,7 @@ pub enum ShuffleMode {
 
     /// Byte shuffle.  Use this mode for most arrays.
     ///
-    /// https://speakerdeck.com/francescalted/new-trends-in-storing-large-data-silos-in-python
+    /// See [new-trends-in-storing-large-data-silos-in-python](https://speakerdeck.com/francescalted/new-trends-in-storing-large-data-silos-in-python)
     Byte = BLOSC_SHUFFLE as isize,
 
     /// Bit shuffle.
@@ -112,11 +114,11 @@ pub enum ShuffleMode {
     /// little slower.  Use it when compressing numeric data if higher
     /// compression is desired.
     ///
-    /// http://blosc.org/posts/new-bitshuffle-filter/
+    /// See [new-bitshuffle-filter](http://blosc.org/posts/new-bitshuffle-filter/)
     Bit = BLOSC_BITSHUFFLE as isize,
 }
 
-/// Holds basic settings for repeated compress operations.
+/// Holds basic settings for `compress` operations.
 #[derive(Clone, Copy, Debug)]
 pub struct Context {
     blocksize: Option<usize>,
@@ -125,9 +127,26 @@ pub struct Context {
     shuffle_mode: ShuffleMode
 }
 
+/// An opaque Blosc-compressed buffer
+pub struct Buffer<T> {
+    data: Vec<u8>,
+    phantom: PhantomData<T>
+}
+
+impl<T> Buffer<T> {
+    fn from_vec(src: Vec<u8>) -> Self {
+        Buffer{data: src, phantom: PhantomData}
+    }
+
+    /// Return the size of the compressed buffer.
+    pub fn size(&self) -> usize {
+        self.data.len()
+    }
+}
+
 impl Context {
     /// Compress an array and return a newly allocated compressed buffer.
-    pub fn compress<T>(&self, src: &[T]) -> Vec<u8> {
+    pub fn compress<T>(&self, src: &[T]) -> Buffer<T> {
         let typesize = mem::size_of::<T>();
         let src_size = src.len() * typesize;
         let dest_size = src_size + BLOSC_MAX_OVERHEAD as usize;
@@ -145,33 +164,33 @@ impl Context {
                 self.blocksize.unwrap_or(0),
                 1)
         };
-        // BLOSC's docs claim that blosc_compress_ctx should never return an
+        // Blosc's docs claim that blosc_compress_ctx should never return an
         // error
         assert!(rsize >= 0,
-                "C-BLOSC internal error with Context={:?}, typesize={:?} nbytes={:?} and destsize={:?}",
+                "C-Blosc internal error with Context={:?}, typesize={:?} nbytes={:?} and destsize={:?}",
                 self, typesize, src_size, dest_size);
         unsafe {
             dest.set_len(rsize as usize);
         }
         dest.shrink_to_fit();
-        dest
+        Buffer::from_vec(dest)
     }
 
     /// Create a context.
     ///
     /// Returns a new context unless the `compressor` is not enabled in this
-    /// build of C-BLOSC.
+    /// build of C-Blosc.
     ///
     /// # Parameters
     ///
     /// - `blocksize`:      Blocksize is the amount of data the compressor will
     ///                     work on at one time.  Limiting it can improve the
-    ///                     CPU's cache hit rate.  Generally this should be
-    ///                     `None`, in which case BLOSC will choose a sensible
-    ///                     value.
+    ///                     CPU's cache hit rate.  Increasing it can improve
+    ///                     compression.  Generally this should be `None`, in
+    ///                     which case Blosc will choose a sensible value.
     /// - `clevel`:         Compression level.  Higher values will give better
     ///                     compression at the expense of speed.
-    /// - `compressor`:     Compressor algorithm to use
+    /// - `compressor`:     Compressor algorithm to use.
     /// - `shuffle_mode`:   Selects which Shuffle filter to apply before
     ///                     compression.
     pub fn new(blocksize: Option<usize>, clevel: Clevel, compressor: Compressor,
@@ -198,19 +217,55 @@ impl Context {
     }
 }
 
-/// Decompress the provided buffer into a newly allocated `Vec`
+/// Decompress a `blosc::Buffer` into a newly allocated `Vec`
 ///
 /// # Safety
 ///
-/// This function is `unsafe` because it transmutes the decompressed data into
-/// an arbitrary type.  That can cause memory errors if the type parameter
-/// contains references, pointers, or does anything interesting on `Drop`.  To
-/// use safely, the caller must always use `decompress` with the same type as
-/// the `Context::compress` call that create it.
+/// `decompress` is safe to use because the compiler will guarantee that `src`
+/// came from the output of `Context::compress`.
+///
+/// # Example
+/// The compiler won't allow decompressing into the wrong type.
+///
+/// ```compile_fail
+/// # use blosc::*;
+/// let data: Vec<u16> = vec![1, 2, 3, 65535];
+/// let ctx = Context::new(None, Clevel::L2, Compressor::BloscLZ,
+///                        ShuffleMode::Byte).unwrap();
+/// let compressed = ctx.compress(&data[..]);
+/// let decompressed: Vec<i16> = decompress(&compressed).unwrap();
+/// ```
+pub fn decompress<T>(src: &Buffer<T>) -> Result<Vec<T>, ()> {
+    unsafe {
+        decompress_bytes(&src.data[..])
+    }
+}
+
+/// Decompress arbitrary data into a newly allocated `Vec`
+///
+/// Use this method when decompressing serialized data from disk, or receiving
+/// it over the network.
+///
+/// # Safety
+///
+/// This function is `unsafe` because it can transmutes data into an arbitrary
+/// type.  That can cause memory errors if the type parameter contains
+/// references, pointers, or does anything interesting on `Drop`.  To use
+/// safely, the caller must ensure that the serialized data was really created
+/// by Blosc, with the correct type.
 ///
 /// This function is also unsafe if the compressed buffer is untrusted.  See
-/// https://github.com/Blosc/c-blosc/issues/229 .
-pub unsafe fn decompress<T>(src: &[u8]) -> Result<Vec<T>, ()> {
+/// [Blosc issue #229](https://github.com/Blosc/c-blosc/issues/229).
+///
+/// # Example
+/// ```
+/// # use blosc::*;
+/// let serialized: Vec<u8> = vec![2, 1, 19, 4, 12, 0, 0, 0, 12, 0, 0, 0,
+///     28, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 3, 0, 0, 0];
+/// let decompressed = unsafe{ decompress_bytes(&serialized[..])}.unwrap();
+/// assert_eq!(&[1, 2, 3], &decompressed[..]);
+/// ```
+pub unsafe fn decompress_bytes<T>(src: &[u8]) -> Result<Vec<T>, ()> {
     let typesize = mem::size_of::<T>();
     let mut nbytes: usize = 0;
     let mut _cbytes: usize = 0;
