@@ -27,6 +27,7 @@ extern crate libc;
 use blosc_sys::*;
 use std::{mem, ptr};
 use std::convert::Into;
+use std::hash::{Hash, Hasher};
 use std::marker::PhantomData;
 use std::os::raw::{c_char, c_int, c_void};
 
@@ -140,6 +141,18 @@ impl<T> Buffer<T> {
     /// Return the size of the compressed buffer.
     pub fn size(&self) -> usize {
         self.data.len()
+    }
+}
+
+impl<T> AsRef<[u8]> for Buffer<T> {
+    fn as_ref(&self) -> &[u8] {
+        self.data.as_ref()
+    }
+}
+
+impl<T> Hash for Buffer<T> {
+    fn hash<H: Hasher>(&self, hasher: &mut H) {
+        hasher.write(self.as_ref());
     }
 }
 

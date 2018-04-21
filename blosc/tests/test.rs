@@ -5,6 +5,8 @@ extern crate blosc;
 extern crate rand;
 
 use blosc::*;
+use std::collections::hash_map::DefaultHasher;
+use std::hash::{Hash, Hasher};
 use std::mem;
 
 // Ignored due to https://github.com/Blosc/c-blosc/issues/227 .
@@ -70,4 +72,16 @@ test_suite! {
         let decoded = decompress(&encoded).unwrap();
         assert_eq!(sample, decoded);
     }
+}
+
+#[test]
+fn test_buffer_hash() {
+    let data: Vec<u8> = vec![1, 2, 3];
+    let ctx = Context::new();
+    let compressed = ctx.compress(&data[..]);
+    let mut buffer_hasher = DefaultHasher::new();
+    compressed.hash(&mut buffer_hasher);
+    let mut slice_hasher = DefaultHasher::new();
+    slice_hasher.write(compressed.as_ref());
+    assert_eq!(buffer_hasher.finish(), slice_hasher.finish());
 }
