@@ -127,7 +127,9 @@ pub struct Context {
     shuffle_mode: ShuffleMode
 }
 
-/// An opaque Blosc-compressed buffer
+/// An opaque Blosc-compressed buffer.
+///
+/// It can be safely decompressed back into an array of the original type.
 pub struct Buffer<T> {
     data: Vec<u8>,
     phantom: PhantomData<T>
@@ -153,6 +155,14 @@ impl<T> AsRef<[u8]> for Buffer<T> {
 impl<T> Hash for Buffer<T> {
     fn hash<H: Hasher>(&self, hasher: &mut H) {
         hasher.write(self.as_ref());
+    }
+}
+
+impl<T> Into<Vec<u8>> for Buffer<T> {
+    /// Transform `self` into a raw `Vec` of bytes.  After this, it can no
+    /// longer be safely decompressed.
+    fn into(self) -> Vec<u8> {
+        self.data
     }
 }
 
@@ -338,4 +348,13 @@ pub unsafe fn decompress_bytes<T>(src: &[u8]) -> Result<Vec<T>, ()> {
         // Buffer too small, data corrupted, decompressor not available, etc
         Err(())
     }
+}
+
+#[test]
+fn test_buffer_into() {
+    let v0 = vec![0u8, 1, 2, 3, 4, 5];
+    let v1 = v0.clone();
+    let buf = Buffer::<u16>::from_vec(v0);
+    let v2: Vec<u8> = buf.into();
+    assert_eq!(v1, v2);
 }
