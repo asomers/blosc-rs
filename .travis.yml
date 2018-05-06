@@ -22,6 +22,5 @@ before_script:
   - export LIBRARY_PATH=$TRAVIS_BUILD_DIR/local/lib:$LIBRARY_PATH
 
 script:
-  - cd blosc
-  - cargo build --verbose
-  - cargo test --verbose
+  - cargo build --all --verbose
+  - cargo test --all --verbose
