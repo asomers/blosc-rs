@@ -10,11 +10,15 @@ categories = ["api-bindings"]
 keywords = ["compression"]
 
 [dependencies]
+# After posting the first version to crates.io, remove the path dependency and
+# rely on the version dependency instead.
+blosc-sys = { path = "../blosc-sys" }
 #blosc-sys = "1.13.1"
 libc = "0.1"
 
+# For official releases, comment out the dependency patch
 #[patch.crates-io]
-blosc-sys = { path = "../blosc-sys" }
+#blosc-sys = { path = "../blosc-sys" }
 
 [dev-dependencies]
 rand = "0.4"
