@@ -9,11 +9,12 @@ matrix:
     - rust: nightly
 
 before_script:
-  - wget https://github.com/Blosc/c-blosc/archive/v1.14.3.tar.gz -O /tmp/cblosc.tar.gz
-  - tar -xvf /tmp/cblosc.tar.gz
+  - wget https://github.com/Blosc/c-blosc/archive/v1.14.3.tar.gz -O /tmp/c-blosc.tar.gz
+  - mkdir c-blosc
+  - tar -xv --strip-components=1 -C c-blosc -f /tmp/c-blosc.tar.gz
   - mkdir local
-  - mkdir cblosc/build
-  - cd cblosc/build
+  - mkdir c-blosc/build
+  - cd c-blosc/build
   - cmake -DCMAKE_INSTALL_PREFIX=$TRAVIS_BUILD_DIR/local ..
   - cmake --build .
   - cmake --build . --target install
