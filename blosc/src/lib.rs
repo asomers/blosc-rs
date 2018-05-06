@@ -64,7 +64,8 @@ pub enum Compressor {
     /// Slower, higher compression version of LZ4.
     /// See [lz4.org](http://www.lz4.org).
     LZ4HC,
-    /// Another fast compressor from Google.  See [Snappy](https://github.com/google/snappy)
+    /// Another fast compressor from Google.  See
+    /// [Snappy](https://github.com/google/snappy)
     Snappy,
     /// The venerable Zlib.  Slower, but better compression than most other
     /// algorithms.  See [zlib.net](https://www.zlib.net)
@@ -124,7 +125,8 @@ pub struct Context {
     blocksize: usize,
     clevel: Clevel,
     compressor: Compressor,
-    shuffle_mode: ShuffleMode
+    shuffle_mode: ShuffleMode,
+    typesize: Option<usize>
 }
 
 /// An opaque Blosc-compressed buffer.
@@ -214,7 +216,7 @@ impl Context {
 
     /// Compress an array and return a newly allocated compressed buffer.
     pub fn compress<T>(&self, src: &[T]) -> Buffer<T> {
-        let typesize = mem::size_of::<T>();
+        let typesize = self.typesize.unwrap_or(mem::size_of::<T>());
         let src_size = src.len() * typesize;
         let dest_size = src_size + BLOSC_MAX_OVERHEAD as usize;
         let mut dest: Vec<u8> = Vec::with_capacity(dest_size);
@@ -261,13 +263,60 @@ impl Context {
             blocksize: 0,       // Automatic blocksize
             clevel: Clevel::L2, // Level 2 selects blocksize to equal L1 cache
             compressor: Compressor::BloscLZ,    // Default algorithm
-            shuffle_mode: ShuffleMode::None     // Don't shuffle by default
+            shuffle_mode: ShuffleMode::None,    // Don't shuffle by default
+            typesize: None                      // autodetect by default
         }
     }
 
     /// Select which Shuffle filter to apply before compression.
     pub fn shuffle(mut self, shuffle_mode: ShuffleMode) -> Self {
         self.shuffle_mode = shuffle_mode;
+        self
+    }
+
+    /// Manually set the size in bytes to assume for each uncompressed array
+    /// element.
+    ///
+    /// The `typesize` is used for Blosc's shuffle operation.  When compressing
+    /// arrays, the `typesize` should be the size of each array element.  If
+    /// `None` or unspecified, it will be autodetected.  However, manually
+    /// setting `typesize` can be useful when compressing preserialized buffers
+    /// or single structures that contain arrays.
+    ///
+    /// # Examples
+    ///
+    /// Set the `typesize` when compressing an array-containing struct
+    ///
+    /// ```
+    /// # use blosc::*;
+    /// # use std::mem;
+    /// #[derive(Default)]
+    /// struct Foo {
+    ///     x: usize,
+    ///     y: [u32; 32]
+    /// }
+    /// let foo = [Foo::default()];
+    /// let ctx = Context::new().typesize(Some(mem::size_of_val(&foo[0].y[0])));
+    /// ctx.compress(&foo[..]);
+    /// ```
+    ///
+    /// Set the `typesize` when compressing preserialized data.
+    ///
+    /// ```
+    /// # extern crate bincode;
+    /// # extern crate blosc;
+    /// # extern crate serde;
+    /// # use blosc::*;
+    /// # use std::mem;
+    /// # fn main() {
+    /// let raw: Vec<i16> = vec![0, 1, 2, 3, 4, 5];
+    /// let serialized = bincode::serialize(&raw).unwrap();
+    /// let ctx = Context::new().typesize(Some(mem::size_of::<i16>()));
+    /// ctx.compress(&serialized[..]);
+    /// # }
+    /// ```
+    pub fn typesize(mut self, typesize: Option<usize>) -> Self {
+        self.typesize = typesize;
         self
     }
 }

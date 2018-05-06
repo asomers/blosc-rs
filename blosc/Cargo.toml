@@ -21,5 +21,7 @@ libc = "0.1"
 #blosc-sys = { path = "../blosc-sys" }
 
 [dev-dependencies]
+bincode = "1.0"
 rand = "0.4"
 galvanic-test = "0.1.3"
+serde = "1.0"
