@@ -3,9 +3,12 @@ name = "blosc"
 version = "0.1.0"
 authors = ["Alan Somers <asomers@gmail.com>"]
 license = "MIT"
+readme = "README.md"
+repository = "https://github.com/asomers/blosc-rs"
 description = """
 Rust bindings to the C-BLOSC compression library
 """
+documentation = "https://docs.rs/blosc"
 categories = ["api-bindings"]
 keywords = ["compression"]
 
@@ -13,7 +16,7 @@ keywords = ["compression"]
 # After posting the first version to crates.io, remove the path dependency and
 # rely on the version dependency instead.
 blosc-sys = { path = "../blosc-sys" }
-#blosc-sys = "1.13.1"
+#blosc-sys = "1.14.2"
 libc = "0.1"
 
 # For official releases, comment out the dependency patch
@@ -25,3 +28,7 @@ bincode = "1.0"
 rand = "0.4"
 galvanic-test = "0.1.3"
 serde = "1.0"
+
+[package.metadata.release]
+dev-version-ext = "pre"
+upload-doc = true

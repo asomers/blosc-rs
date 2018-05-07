@@ -3,5 +3,15 @@ name = "blosc-sys"
 version = "1.14.2"
 authors = ["Alan Somers <asomers@gmail.com>"]
 license = "MIT"
+readme = "README.md"
+repository = "https://github.com/asomers/blosc-rs"
+description = """
+Rust FFI bindings to the C-BLOSC compression library
+"""
+documentation = "https://docs.rs/blosc-sys"
 categories = ["external-ffi-bindings"]
 keywords = ["compression"]
+
+[package.metadata.release]
+dev-version-ext = "pre"
+upload-doc = true
