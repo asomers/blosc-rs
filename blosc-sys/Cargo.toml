@@ -14,4 +14,3 @@ keywords = ["compression"]
 
 [package.metadata.release]
 dev-version-ext = "pre"
-upload-doc = true
