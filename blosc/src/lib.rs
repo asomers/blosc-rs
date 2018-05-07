@@ -196,6 +196,9 @@ impl Context {
         let comp_ptr: *const c_char = compressor.into();
         let mut complib: *mut c_char = ptr::null_mut();
         let mut version: *mut c_char = ptr::null_mut();
+        // TODO: In Blosc 1.14.4, make the complib and version arguments to
+        // blosc_get_complib_info NULL
+        // https://github.com/Blosc/c-blosc/issues/228
         let support = unsafe {
             blosc_get_complib_info(comp_ptr,
                                    &mut complib as *mut *mut c_char,
