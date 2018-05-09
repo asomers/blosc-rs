@@ -1,6 +1,6 @@
 [package]
 name = "blosc"
-version = "0.1.1-pre"
+version = "0.1.1"
 authors = ["Alan Somers <asomers@gmail.com>"]
 license = "MIT"
 readme = "README.md"
