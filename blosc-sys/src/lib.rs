@@ -3,5 +3,5 @@
 //!
 //! These are raw, `unsafe` FFI bindings.  Here by dragons!  You probably
 //! shouldn't use this crate directly.  Instead, you should use the
-//! [`blosc`](https://crates.io/crates/blosc-sys) crate.
+//! [`blosc`](https://crates.io/crates/blosc) crate.
 include!("bindgen.rs");

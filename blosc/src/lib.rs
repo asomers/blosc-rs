@@ -97,7 +97,7 @@ impl Into<*const c_char> for Compressor {
 ///
 /// The Shuffle operation is the key to efficiently compressing arrays.  It
 /// rearranges the array to put every entry's MSB together and every entry's LSB
-/// together, which improves the performance of every Compressor.
+/// together, which improves the performance of every `Compressor`.
 #[derive(Clone, Copy, Debug)]
 pub enum ShuffleMode {
     /// No shuffle.  Use this mode for data that is not an array.
@@ -337,8 +337,7 @@ impl Context {
 /// ```compile_fail
 /// # use blosc::*;
 /// let data: Vec<u16> = vec![1, 2, 3, 65535];
-/// let ctx = Context::new(None, Clevel::L2, Compressor::BloscLZ,
-///                        ShuffleMode::Byte).unwrap();
+/// let ctx = Context::new();
 /// let compressed = ctx.compress(&data[..]);
 /// let decompressed: Vec<i16> = decompress(&compressed).unwrap();
 /// ```
@@ -358,7 +357,7 @@ pub fn decompress<T>(src: &Buffer<T>) -> Result<Vec<T>, ()> {
 /// This function is `unsafe` because it can transmutes data into an arbitrary
 /// type.  That can cause memory errors if the type parameter contains
 /// references, pointers, or does anything interesting on `Drop`.  To use
-/// safely, the caller must ensure that the serialized data was really created
+/// safely, the caller must ensure that the serialized data really was created
 /// by Blosc, with the correct type.
 ///
 /// This function is also unsafe if the compressed buffer is untrusted.  See
