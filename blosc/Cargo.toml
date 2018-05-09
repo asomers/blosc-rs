@@ -17,8 +17,8 @@ blosc-sys = "1.14.2"
 libc = "0.1"
 
 # For official releases, comment out the dependency patch
-[patch.crates-io]
-blosc-sys = { path = "../blosc-sys" }
+# [patch.crates-io]
+# blosc-sys = { path = "../blosc-sys" }
 
 [dev-dependencies]
 bincode = "1.0"
