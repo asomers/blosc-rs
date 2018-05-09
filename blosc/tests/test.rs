@@ -22,29 +22,32 @@ test_suite! {
     use super::*;
     use rand::distributions::{Range, IndependentSample};
 
-    fixture!(settings(blocksize: Option<usize>, clevel: Clevel,
+    fixture!(settings(blocksize: Option<usize>, typesize: Option<usize>,
+                      clevel: Clevel,
                       compressor: Compressor,
                       shuffle_mode: ShuffleMode) -> Context {
         params {
             vec![
                 // Baseline
-                (None, Clevel::L2, Compressor::LZ4, ShuffleMode::Byte),
+                (None, None, Clevel::L2, Compressor::LZ4, ShuffleMode::Byte),
                 // Forced blocksize
-                (Some(65536), Clevel::L2, Compressor::LZ4, ShuffleMode::Byte),
+                (Some(65536), None, Clevel::L2, Compressor::LZ4, ShuffleMode::Byte),
                 // Various compression levels
-                (None, Clevel::None, Compressor::LZ4, ShuffleMode::Byte),
-                (None, Clevel::L9, Compressor::LZ4, ShuffleMode::Byte),
+                (None, None, Clevel::None, Compressor::LZ4, ShuffleMode::Byte),
+                (None, None, Clevel::L9, Compressor::LZ4, ShuffleMode::Byte),
                 // All different compressors
-                (None, Clevel::L2, Compressor::BloscLZ, ShuffleMode::Byte),
-                (None, Clevel::L2, Compressor::LZ4HC, ShuffleMode::Byte),
-                (None, Clevel::L2, Compressor::Snappy, ShuffleMode::Byte),
-                (None, Clevel::L2, Compressor::Zlib, ShuffleMode::Byte),
-                (None, Clevel::L2, Compressor::Zstd, ShuffleMode::Byte),
+                (None, None, Clevel::L2, Compressor::BloscLZ, ShuffleMode::Byte),
+                (None, None, Clevel::L2, Compressor::LZ4HC, ShuffleMode::Byte),
+                (None, None, Clevel::L2, Compressor::Snappy, ShuffleMode::Byte),
+                (None, None, Clevel::L2, Compressor::Zlib, ShuffleMode::Byte),
+                (None, None, Clevel::L2, Compressor::Zstd, ShuffleMode::Byte),
                 // Shuffle options
-                (None, Clevel::L2, Compressor::LZ4, ShuffleMode::None),
-                (None, Clevel::L2, Compressor::LZ4, ShuffleMode::Bit),
+                (None, None, Clevel::L2, Compressor::LZ4, ShuffleMode::None),
+                (None, None, Clevel::L2, Compressor::LZ4, ShuffleMode::Bit),
                 // Maximum compression
-                (None, Clevel::L9, Compressor::Zstd, ShuffleMode::Bit),
+                (None, None, Clevel::L9, Compressor::Zstd, ShuffleMode::Bit),
+                // Forced typesize
+                (None, Some(2), Clevel::L2, Compressor::LZ4, ShuffleMode::Byte),
             ].into_iter()
         }
 
@@ -54,13 +57,14 @@ test_suite! {
                 .clevel(*self.clevel)
                 .compressor(*self.compressor).unwrap()
                 .shuffle(*self.shuffle_mode)
+                .typesize(*self.typesize)
         }
     });
 
     test round_trip(settings) {
         let distribution = Range::new(1000u32, 2000u32);
         let mut rng = rand::thread_rng();
-        let sample = (0..1000).map(|_| {
+        let sample = (0..10).map(|_| {
             distribution.ind_sample(&mut rng)
         }).collect::<Vec<_>>();
 
