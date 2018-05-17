@@ -120,6 +120,7 @@ pub enum ShuffleMode {
 }
 
 /// Holds basic settings for `compress` operations.
+// LCOV_EXCL_START
 #[derive(Clone, Copy, Debug)]
 pub struct Context {
     blocksize: usize,
@@ -128,6 +129,7 @@ pub struct Context {
     shuffle_mode: ShuffleMode,
     typesize: Option<usize>
 }
+// LCOV_EXCL_STOP
 
 /// An opaque Blosc-compressed buffer.
 ///
@@ -238,9 +240,11 @@ impl Context {
         };
         // Blosc's docs claim that blosc_compress_ctx should never return an
         // error
+        // LCOV_EXCL_START
         assert!(rsize >= 0,
                 "C-Blosc internal error with Context={:?}, typesize={:?} nbytes={:?} and destsize={:?}",
                 self, typesize, src_size, dest_size);
+        // LCOV_EXCL_STOP
         unsafe {
             dest.set_len(rsize as usize);
         }
@@ -354,7 +358,7 @@ pub fn decompress<T>(src: &Buffer<T>) -> Result<Vec<T>, ()> {
 ///
 /// # Safety
 ///
-/// This function is `unsafe` because it can transmutes data into an arbitrary
+/// This function is `unsafe` because it can transmute data into an arbitrary
 /// type.  That can cause memory errors if the type parameter contains
 /// references, pointers, or does anything interesting on `Drop`.  To use
 /// safely, the caller must ensure that the serialized data really was created
