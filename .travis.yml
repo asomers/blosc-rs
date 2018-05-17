@@ -56,7 +56,7 @@ after_success:
       cd ${TRAVIS_BUILD_DIR}
       rm -rf kcov
     fi &&
-    cargo kcov --verbose -- --include-path='blosc/src,blosc-sys/src' &&
+    cargo kcov --all --verbose -- --include-path='blosc/src,blosc-sys/src' &&
     bash <(curl -s https://codecov.io/bash) &&
     echo "CodeCov: uploaded coverage data"
   fi
