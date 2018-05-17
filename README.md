@@ -3,6 +3,7 @@
 Rust bindings for the C-Blosc compression library.
 
 [![Build Status](https://travis-ci.org/asomers/blosc-rs.svg?branch=master)](https://travis-ci.org/asomers/blosc-rs)
+[![CodeCov.io](https://codecov.io/gh/asomers/blosc-rs/branch/master/graph/badge.svg)](https://codecov.io/gh/asomers/blosc-rs)
 
 The `blosc` crate provides Rusty bindings for [`C-Blosc`](http://blosc.org/), a
 compression library for binary data, especially numeric arrays.  The
