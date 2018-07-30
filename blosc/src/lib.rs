@@ -196,20 +196,9 @@ impl Context {
     /// C-Blosc.
     pub fn compressor(mut self, compressor: Compressor) -> Result<Self, ()> {
         let comp_ptr: *const c_char = compressor.into();
-        let mut complib: *mut c_char = ptr::null_mut();
-        let mut version: *mut c_char = ptr::null_mut();
-        // TODO: In Blosc 1.14.4, make the complib and version arguments to
-        // blosc_get_complib_info NULL
-        // https://github.com/Blosc/c-blosc/issues/228
         let support = unsafe {
-            blosc_get_complib_info(comp_ptr,
-                                   &mut complib as *mut *mut c_char,
-                                   &mut version as *mut *mut c_char)
+            blosc_get_complib_info(comp_ptr, ptr::null_mut(), ptr::null_mut())
         };
-        unsafe {
-            libc::free(complib as *mut libc::c_void);
-            libc::free(version as *mut libc::c_void);
-        }
         if support >= 0 {
             self.compressor = compressor;
             Ok(self)

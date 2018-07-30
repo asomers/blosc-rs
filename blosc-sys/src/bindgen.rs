@@ -2,10 +2,10 @@
 
 pub const BLOSC_VERSION_MAJOR: u32 = 1;
 pub const BLOSC_VERSION_MINOR: u32 = 14;
-pub const BLOSC_VERSION_RELEASE: u32 = 2;
-pub const BLOSC_VERSION_STRING: &'static [u8; 7usize] = b"1.14.2\0";
+pub const BLOSC_VERSION_RELEASE: u32 = 4;
+pub const BLOSC_VERSION_STRING: &'static [u8; 7usize] = b"1.14.4\0";
 pub const BLOSC_VERSION_REVISION: &'static [u8; 6usize] = b"$Rev$\0";
-pub const BLOSC_VERSION_DATE: &'static [u8; 22usize] = b"$Date:: 2018-03-16 #$\0";
+pub const BLOSC_VERSION_DATE: &'static [u8; 22usize] = b"$Date:: 2018-07-30 #$\0";
 pub const BLOSCLZ_VERSION_STRING: &'static [u8; 6usize] = b"1.1.0\0";
 pub const BLOSC_VERSION_FORMAT: u32 = 2;
 pub const BLOSC_MIN_HEADER_LENGTH: u32 = 16;
@@ -333,7 +333,8 @@ extern "C" {
     /// In `complib` and `version` you get a pointer to the compressor
     /// library name and the version in string format respectively.  After
     /// using the name and version, you should free() them so as to avoid
-    /// leaks.
+    /// leaks.  If any of `complib` and `version` are NULL, they will not be
+    /// assigned to anything, and the user should not need to free them.
     ///
     /// If the compressor is supported, it returns the code for the library
     /// (>=0).  If it is not supported, this function returns -1.

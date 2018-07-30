@@ -9,8 +9,6 @@ use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 use std::mem;
 
-// Ignored due to https://github.com/Blosc/c-blosc/issues/227 .
-#[ignore]
 #[test]
 fn test_invalid_compressor() {
     assert!(Context::new().compressor(Compressor::Invalid).is_err())
