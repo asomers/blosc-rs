@@ -54,7 +54,7 @@ const BLOSC_INVALID_COMPNAME: &'static [u8; 8usize] = b"invalid\0";
 /// Compressor selection.
 ///
 /// Under the hood, Blosc supports several different compression algorithms.
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum Compressor {
     /// The default compressor, based on FastLZ.  It's very fast, but the
     /// compression isn't as good as the other compressors.
