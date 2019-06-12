@@ -14,7 +14,7 @@ keywords = ["compression"]
 
 [dependencies]
 blosc-sys = "1.14.4"
-libc = "0.1"
+libc = "0.2.4"
 
 # For official releases, comment out the dependency patch
 # [patch.crates-io]
