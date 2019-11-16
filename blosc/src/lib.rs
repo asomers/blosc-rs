@@ -49,7 +49,7 @@ pub enum Clevel {
     L9 = 9
 }
 
-const BLOSC_INVALID_COMPNAME: &'static [u8; 8usize] = b"invalid\0";
+const BLOSC_INVALID_COMPNAME: &[u8; 8usize] = b"invalid\0";
 
 /// Compressor selection.
 ///
@@ -304,16 +304,20 @@ impl Context {
     /// # extern crate serde;
     /// # use blosc::*;
     /// # use std::mem;
-    /// # fn main() {
     /// let raw: Vec<i16> = vec![0, 1, 2, 3, 4, 5];
     /// let serialized = bincode::serialize(&raw).unwrap();
     /// let ctx = Context::new().typesize(Some(mem::size_of::<i16>()));
     /// ctx.compress(&serialized[..]);
-    /// # }
     /// ```
     pub fn typesize(mut self, typesize: Option<usize>) -> Self {
         self.typesize = typesize;
         self
+    }
+}
+
+impl Default for Context {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
