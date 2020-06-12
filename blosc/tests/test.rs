@@ -18,7 +18,7 @@ test_suite! {
     name round_trip;
 
     use super::*;
-    use rand::distributions::{Range, IndependentSample};
+    use rand::distributions::{Distribution, Uniform};
 
     fixture!(settings(blocksize: Option<usize>, typesize: Option<usize>,
                       clevel: Clevel,
@@ -60,10 +60,10 @@ test_suite! {
     });
 
     test round_trip(settings) {
-        let distribution = Range::new(1000u32, 2000u32);
+        let distribution = Uniform::new(1000u32, 2000u32);
         let mut rng = rand::thread_rng();
         let sample = (0..10).map(|_| {
-            distribution.ind_sample(&mut rng)
+            distribution.sample(&mut rng)
         }).collect::<Vec<_>>();
 
 
