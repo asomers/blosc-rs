@@ -22,6 +22,6 @@ libc = "0.2.4"
 
 [dev-dependencies]
 bincode = "1.0"
-rand = "0.4"
+rand = "0.7.0"
 galvanic-test = "0.1.3"
 serde = "1.0"
