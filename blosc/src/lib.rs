@@ -49,8 +49,6 @@ pub enum Clevel {
     L9 = 9,
 }
 
-const BLOSC_INVALID_COMPNAME: &[u8; 8usize] = b"invalid\0";
-
 /// Compressor selection.
 ///
 /// Under the hood, Blosc supports several different compression algorithms.
@@ -73,9 +71,6 @@ pub enum Compressor {
     /// A high compression algorithm from Facebook.
     /// See [zstd](https://facebook.github.io/zstd).
     Zstd,
-    /// For testing purposes only
-    #[doc(hidden)]
-    Invalid,
 }
 
 impl Into<*const c_char> for Compressor {
@@ -87,7 +82,6 @@ impl Into<*const c_char> for Compressor {
             Compressor::Snappy => BLOSC_SNAPPY_COMPNAME.as_ptr(),
             Compressor::Zlib => BLOSC_ZLIB_COMPNAME.as_ptr(),
             Compressor::Zstd => BLOSC_ZSTD_COMPNAME.as_ptr(),
-            Compressor::Invalid => BLOSC_INVALID_COMPNAME.as_ptr(),
         };
         compref as *const c_char
     }
@@ -199,7 +193,9 @@ impl Context {
     /// C-Blosc.
     pub fn compressor(mut self, compressor: Compressor) -> Result<Self, ()> {
         let comp_ptr: *const c_char = compressor.into();
-        let support = unsafe { blosc_get_complib_info(comp_ptr, ptr::null_mut(), ptr::null_mut()) };
+        let mut complib = ptr::null_mut();
+        let mut version = ptr::null_mut();
+        let support = unsafe { blosc_get_complib_info(comp_ptr, &mut complib, &mut version) };
         if support >= 0 {
             self.compressor = compressor;
             Ok(self)
