@@ -25,11 +25,11 @@ extern crate blosc_sys;
 extern crate libc;
 
 use blosc_sys::*;
-use std::{mem, ptr};
 use std::convert::Into;
 use std::hash::{Hash, Hasher};
 use std::marker::PhantomData;
 use std::os::raw::{c_char, c_int, c_void};
+use std::{mem, ptr};
 
 /// The desired compression level.  Higher levels mean more compression.
 #[derive(Clone, Copy, Debug)]
@@ -46,7 +46,7 @@ pub enum Clevel {
     L6 = 6,
     L7 = 7,
     L8 = 8,
-    L9 = 9
+    L9 = 9,
 }
 
 const BLOSC_INVALID_COMPNAME: &[u8; 8usize] = b"invalid\0";
@@ -75,7 +75,7 @@ pub enum Compressor {
     Zstd,
     /// For testing purposes only
     #[doc(hidden)]
-    Invalid
+    Invalid,
 }
 
 impl Into<*const c_char> for Compressor {
@@ -87,7 +87,7 @@ impl Into<*const c_char> for Compressor {
             Compressor::Snappy => BLOSC_SNAPPY_COMPNAME.as_ptr(),
             Compressor::Zlib => BLOSC_ZLIB_COMPNAME.as_ptr(),
             Compressor::Zstd => BLOSC_ZSTD_COMPNAME.as_ptr(),
-            Compressor::Invalid => BLOSC_INVALID_COMPNAME.as_ptr()
+            Compressor::Invalid => BLOSC_INVALID_COMPNAME.as_ptr(),
         };
         compref as *const c_char
     }
@@ -127,7 +127,7 @@ pub struct Context {
     clevel: Clevel,
     compressor: Compressor,
     shuffle_mode: ShuffleMode,
-    typesize: Option<usize>
+    typesize: Option<usize>,
 }
 // LCOV_EXCL_STOP
 
@@ -136,12 +136,15 @@ pub struct Context {
 /// It can be safely decompressed back into an array of the original type.
 pub struct Buffer<T> {
     data: Vec<u8>,
-    phantom: PhantomData<T>
+    phantom: PhantomData<T>,
 }
 
 impl<T> Buffer<T> {
     fn from_vec(src: Vec<u8>) -> Self {
-        Buffer{data: src, phantom: PhantomData}
+        Buffer {
+            data: src,
+            phantom: PhantomData,
+        }
     }
 
     /// Return the size of the compressed buffer.
@@ -196,9 +199,7 @@ impl Context {
     /// C-Blosc.
     pub fn compressor(mut self, compressor: Compressor) -> Result<Self, ()> {
         let comp_ptr: *const c_char = compressor.into();
-        let support = unsafe {
-            blosc_get_complib_info(comp_ptr, ptr::null_mut(), ptr::null_mut())
-        };
+        let support = unsafe { blosc_get_complib_info(comp_ptr, ptr::null_mut(), ptr::null_mut()) };
         if support >= 0 {
             self.compressor = compressor;
             Ok(self)
@@ -225,14 +226,20 @@ impl Context {
                 dest_size,
                 self.compressor.into(),
                 self.blocksize,
-                1)
+                1,
+            )
         };
         // Blosc's docs claim that blosc_compress_ctx should never return an
         // error
         // LCOV_EXCL_START
-        assert!(rsize >= 0,
-                "C-Blosc internal error with Context={:?}, typesize={:?} nbytes={:?} and destsize={:?}",
-                self, typesize, src_size, dest_size);
+        assert!(
+            rsize >= 0,
+            "C-Blosc internal error with Context={:?}, typesize={:?} nbytes={:?} and destsize={:?}",
+            self,
+            typesize,
+            src_size,
+            dest_size
+        );
         // LCOV_EXCL_STOP
         unsafe {
             dest.set_len(rsize as usize);
@@ -255,12 +262,12 @@ impl Context {
     ///     .shuffle(ShuffleMode::Bit);
     /// ```
     pub fn new() -> Self {
-        Context{
-            blocksize: 0,       // Automatic blocksize
-            clevel: Clevel::L2, // Level 2 selects blocksize to equal L1 cache
-            compressor: Compressor::BloscLZ,    // Default algorithm
-            shuffle_mode: ShuffleMode::None,    // Don't shuffle by default
-            typesize: None                      // autodetect by default
+        Context {
+            blocksize: 0,                    // Automatic blocksize
+            clevel: Clevel::L2,              // Level 2 selects blocksize to equal L1 cache
+            compressor: Compressor::BloscLZ, // Default algorithm
+            shuffle_mode: ShuffleMode::None, // Don't shuffle by default
+            typesize: None,                  // autodetect by default
         }
     }
 
@@ -339,9 +346,7 @@ impl Default for Context {
 /// let decompressed: Vec<i16> = decompress(&compressed).unwrap();
 /// ```
 pub fn decompress<T>(src: &Buffer<T>) -> Result<Vec<T>, ()> {
-    unsafe {
-        decompress_bytes(&src.data[..])
-    }
+    unsafe { decompress_bytes(&src.data[..]) }
 }
 
 /// Decompress arbitrary data into a newly allocated `Vec`
@@ -378,7 +383,8 @@ pub unsafe fn decompress_bytes<T>(src: &[u8]) -> Result<Vec<T>, ()> {
         src.as_ptr() as *const c_void,
         &mut nbytes as *mut usize,
         &mut _cbytes as *mut usize,
-        &mut _blocksize as *mut usize);
+        &mut _blocksize as *mut usize,
+    );
     let dest_size = nbytes / typesize;
     let mut dest: Vec<T> = Vec::with_capacity(dest_size);
     // Unsafe if src comes from an untrusted source.
@@ -386,7 +392,8 @@ pub unsafe fn decompress_bytes<T>(src: &[u8]) -> Result<Vec<T>, ()> {
         src.as_ptr() as *const c_void,
         dest.as_mut_ptr() as *mut c_void,
         nbytes,
-        1);
+        1,
+    );
     if rsize > 0 {
         // Unsafe if T contains references or pointers
         dest.set_len(rsize as usize / typesize);
