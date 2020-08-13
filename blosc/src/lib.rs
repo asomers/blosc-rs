@@ -123,11 +123,11 @@ pub enum ShuffleMode {
 // LCOV_EXCL_START
 #[derive(Clone, Copy, Debug)]
 pub struct Context {
-    blocksize: usize,
+    blocksize: size_t,
     clevel: Clevel,
     compressor: Compressor,
     shuffle_mode: ShuffleMode,
-    typesize: Option<usize>,
+    typesize: Option<size_t>,
 }
 // LCOV_EXCL_STOP
 
@@ -181,7 +181,7 @@ impl Context {
     /// improve compression.  Generally this should be `None`, in which case
     /// Blosc will choose a sensible value.
     pub fn blocksize(mut self, blocksize: Option<usize>) -> Self {
-        self.blocksize = blocksize.unwrap_or(0);
+        self.blocksize = blocksize.unwrap_or(0) as size_t;
         self
     }
 
@@ -211,10 +211,10 @@ impl Context {
 
     /// Compress an array and return a newly allocated compressed buffer.
     pub fn compress<T>(&self, src: &[T]) -> Buffer<T> {
-        let typesize = self.typesize.unwrap_or(mem::size_of::<T>());
-        let src_size = src.len() * mem::size_of::<T>();
-        let dest_size = src_size + BLOSC_MAX_OVERHEAD as usize;
-        let mut dest: Vec<u8> = Vec::with_capacity(dest_size);
+        let typesize = self.typesize.unwrap_or(mem::size_of::<T>() as _);
+        let src_size = (src.len() * mem::size_of::<T>()) as size_t;
+        let dest_size = src_size as size_t + BLOSC_MAX_OVERHEAD as size_t;
+        let mut dest: Vec<u8> = Vec::with_capacity(dest_size as usize);
         let rsize = unsafe {
             blosc_compress_ctx(
                 self.clevel as c_int,
@@ -317,7 +317,7 @@ impl Context {
     /// ctx.compress(&serialized[..]);
     /// ```
     pub fn typesize(mut self, typesize: Option<usize>) -> Self {
-        self.typesize = typesize;
+        self.typesize = typesize.map(|t| t as size_t);
         self
     }
 }
@@ -374,19 +374,19 @@ pub fn decompress<T>(src: &Buffer<T>) -> Result<Vec<T>, ()> {
 /// assert_eq!(&[1, 2, 3], &decompressed[..]);
 /// ```
 pub unsafe fn decompress_bytes<T>(src: &[u8]) -> Result<Vec<T>, ()> {
-    let typesize = mem::size_of::<T>();
-    let mut nbytes: usize = 0;
-    let mut _cbytes: usize = 0;
-    let mut _blocksize: usize = 0;
+    let typesize = mem::size_of::<T>() as size_t;
+    let mut nbytes: size_t = 0;
+    let mut _cbytes: size_t = 0;
+    let mut _blocksize: size_t = 0;
     // Unsafe if src comes from an untrusted source.
     blosc_cbuffer_sizes(
         src.as_ptr() as *const c_void,
-        &mut nbytes as *mut usize,
-        &mut _cbytes as *mut usize,
-        &mut _blocksize as *mut usize,
+        &mut nbytes,
+        &mut _cbytes,
+        &mut _blocksize,
     );
     let dest_size = nbytes / typesize;
-    let mut dest: Vec<T> = Vec::with_capacity(dest_size);
+    let mut dest: Vec<T> = Vec::with_capacity(dest_size as usize);
     // Unsafe if src comes from an untrusted source.
     let rsize = blosc_decompress_ctx(
         src.as_ptr() as *const c_void,
@@ -396,7 +396,7 @@ pub unsafe fn decompress_bytes<T>(src: &[u8]) -> Result<Vec<T>, ()> {
     );
     if rsize > 0 {
         // Unsafe if T contains references or pointers
-        dest.set_len(rsize as usize / typesize);
+        dest.set_len(rsize as usize / typesize as usize);
         dest.shrink_to_fit();
         Ok(dest)
     } else {
