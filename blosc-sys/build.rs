@@ -15,6 +15,18 @@ fn main() {
     } else {
         None
     };
+    #[cfg(unix)]
+    if bindings.is_none() {
+        if let Ok(pc) = pkg_config::probe_library("blosc") {
+            let include = &pc.include_paths[0];
+            bindings = Some(
+                binding_config()
+                    .clang_arg(format!("-I{}", include.to_str().unwrap()))
+                    .generate()
+                    .unwrap(),
+            )
+        }
+    }
     // Fallback to conda bindings
     if bindings.is_none() {
         if let Ok(conda_prefix) = env::var("CONDA_PREFIX") {
@@ -27,7 +39,6 @@ fn main() {
                 #[cfg(not(windows))]
                 println!("cargo:rustc-link-search=native={}/lib", conda_prefix);
                 bindings = Some(bind)
-            } else {
             }
         }
     };
