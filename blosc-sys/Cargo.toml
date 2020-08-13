@@ -12,3 +12,6 @@ documentation = "https://docs.rs/blosc-sys"
 categories = ["external-ffi-bindings"]
 keywords = ["compression"]
 links = "blosc"
+
+[build-dependencies]
+bindgen = "0.54.1"
