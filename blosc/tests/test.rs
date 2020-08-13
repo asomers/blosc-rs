@@ -19,7 +19,7 @@ test_suite! {
     fixture!(settings(blocksize: Option<usize>, typesize: Option<usize>,
                       clevel: Clevel,
                       compressor: Compressor,
-                      shuffle_mode: ShuffleMode) -> Context {
+                      shuffle_mode: ShuffleMode) -> Result<Context, ()> {
         params {
             vec![
                 // Baseline
@@ -46,12 +46,17 @@ test_suite! {
         }
 
         setup(&mut self) {
-            Context::new()
+            let ctx = Context::new()
                 .blocksize(*self.blocksize)
                 .clevel(*self.clevel)
-                .compressor(*self.compressor).unwrap()
+                .compressor(*self.compressor);
+            if let Ok(ctx) = ctx {
+                Ok(ctx
                 .shuffle(*self.shuffle_mode)
-                .typesize(*self.typesize)
+                .typesize(*self.typesize))
+            } else {
+                Err(())
+            }
         }
     });
 
@@ -63,7 +68,11 @@ test_suite! {
         }).collect::<Vec<_>>();
 
 
-        let encoded = settings.val.compress(&sample[..]);
+        let encoder = settings.val;
+        if encoder.is_err() {
+            return
+        }
+        let encoded = encoder.unwrap().compress(&sample[..]);
         let srclen = sample.len() * mem::size_of::<u32>();
         let ratio = srclen as f64 / encoded.size() as f64;
         println!("Compression ratio: {}", ratio);
