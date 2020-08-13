@@ -11,3 +11,4 @@ Rust FFI bindings to the C-BLOSC compression library
 documentation = "https://docs.rs/blosc-sys"
 categories = ["external-ffi-bindings"]
 keywords = ["compression"]
+links = "blosc"
