@@ -5,7 +5,6 @@ sudo: required
 rust:
   - 1.32.0
   - stable
-  - beta
   - nightly
 
 env:
