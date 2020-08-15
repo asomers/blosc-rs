@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+    branches:
+    - master
+  schedule:
+  - cron: '0 0 15 * *'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  rustfmt:
+    name: rustfmt
+    runs-on: ubuntu-18.04
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with: {submodules: true}
+    - name: Install libblosc
+      run: sudo apt-get install libblosc-dev
+    - name: Install rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        override: true
+        profile: minimal
+        components: rustfmt, clippy
+    - name: Check formatting
+      run: cargo fmt -- --check
+    - name: Documentation
+      run: cargo doc
+    - name: Clippy
+      run: cargo clippy -- -D warnings
+
+  test_apt:
+    name: test apt
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        build:
+        - stable
+        - beta
+        - nightly
+        include:
+        - build: stable
+          rust: stable
+        - build: beta
+          rust: beta
+        - build: nightly
+          rust: nightly
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with: {submodules: false}
+
+    - name: Install libblosc
+      run: sudo apt-get install libblosc-dev
+
+    - name: Install rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: ${{ matrix.rust }}
+        profile: minimal
+        override: true
+
+    - name: Build
+      run: cargo build --verbose
+
+    - name: Test
+      run: cargo test --verbose
