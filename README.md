@@ -2,7 +2,7 @@
 
 Rust bindings for the C-Blosc compression library.
 
-[![Build Status](https://travis-ci.org/asomers/blosc-rs.svg?branch=master)](https://travis-ci.org/asomers/blosc-rs)
+[![Build Status](https://api.cirrus-ci.com/github/asomers/blosc-rs.svg?maxAge=2592000)](https://cirrus-ci.com/github/asomers/blosc-rs)
 [![Crates.io](https://img.shields.io/crates/v/blosc.svg?maxAge=2592000)](https://crates.io/crates/blosc)
 [![Crates.io](https://img.shields.io/crates/v/blosc-sys.svg?maxAge=2592000)](https://crates.io/crates/blosc-sys)
 [![CodeCov.io](https://codecov.io/gh/asomers/blosc-rs/branch/master/graph/badge.svg)](https://codecov.io/gh/asomers/blosc-rs)
