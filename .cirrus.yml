@@ -1,0 +1,81 @@
+setup: &SETUP
+  setup_script:
+    - apt update
+    - apt-get -y install libcurl4-openssl-dev libelf-dev libdw-dev cmake gcc binutils-dev libiberty-dev
+    - wget https://github.com/Blosc/c-blosc/archive/v1.14.4.tar.gz -O /tmp/c-blosc.tar.gz
+    - mkdir c-blosc
+    - tar -xv --strip-components=1 -C c-blosc -f /tmp/c-blosc.tar.gz
+    - mkdir local
+    - mkdir c-blosc/build
+    - cd c-blosc/build
+    - cmake ..
+    - cmake --build .
+    - cmake --build . --target install
+  
+test_task:
+  matrix:
+    - name: MSRV
+      container:
+        image: rust:1.32.0
+    - name: stable
+      container:
+        image: rust:latest
+    - name: nightly
+      container:
+        image: rustlang/rust:nightly
+      env:
+        CARGO_ARGS: --all-features
+  cargo_cache:
+    folder: $CARGO_HOME/registry
+  env:
+    LD_LIBRARY_PATH: /usr/local/lib
+  << : *SETUP
+  build_script:
+    - cargo build --all --verbose
+  test_script:
+    - cargo test --all --verbose
+  before_cache_script: rm -rf $CARGO_HOME/registry/index
+ 
+minver_task:
+  depends_on:
+    - MSRV
+    - stable
+    - nightly
+  container:
+    image: rustlang/rust:nightly
+  cargo_cache:
+    folder: $CARGO_HOME/registry
+  << : *SETUP
+  build_script:
+    - cargo update -Zminimal-versions
+    - cargo check --all --all-targets
+  before_cache_script: rm -rf $CARGO_HOME/registry/index
+
+codecov_task:
+  depends_on:
+    - MSRV
+    - stable
+    - nightly
+  container:
+    image: rustlang/rust:nightly
+  env:
+    LD_LIBRARY_PATH: /usr/local/lib
+    CODECOV_TOKEN: ENCRYPTED[b5844fa7ff980377a0d9848d858cc64975037822048885ba18a40897254fb5a2e09f9332658195030b36471b40abfecb]
+  cargo_cache:
+    folder: $CARGO_HOME/registry
+  << : *SETUP
+  setup_kcov_script:
+    - cargo install cargo-kcov
+    - |
+      if [ ! -x $HOME/.cargo/bin/kcov ] || [ ! -f $HOME/.cargo/bin/kcov ]; then
+        mkdir kcov
+        cd kcov
+        cargo kcov --print-install-kcov-sh | sh || exit 1
+        cd -
+        rm -rf kcov
+      fi
+  kcov_script:
+    - cargo check       # Ensure Cargo.lock exists
+    - cargo kcov --all --verbose -- --include-path='blosc/src'
+    - bash <(curl -s https://codecov.io/bash)
+  before_cache_script: rm -rf $CARGO_HOME/registry/index
