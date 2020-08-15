@@ -1,7 +1,8 @@
 // vim: tw=80
 
 extern crate blosc;
-#[macro_use] extern crate galvanic_test;
+#[macro_use]
+extern crate galvanic_test;
 extern crate rand;
 
 use blosc::*;
