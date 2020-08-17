@@ -12,3 +12,9 @@ documentation = "https://docs.rs/blosc-sys"
 categories = ["external-ffi-bindings"]
 keywords = ["compression"]
 links = "blosc"
+
+[features]
+static = ["blosc-src"]
+
+[dependencies]
+blosc-src = { path = "../blosc-src", optional = true }

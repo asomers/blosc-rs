@@ -1,2 +1,3 @@
 [workspace]
 members = [ "blosc", "blosc-sys", "blosc-src" ]
+default-members = [ "blosc", "blosc-sys" ]

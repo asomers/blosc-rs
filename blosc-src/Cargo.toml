@@ -3,7 +3,8 @@ name = "blosc-src"
 version = "0.1.0"
 authors = ["Magnus Ulimoen <magnus@ulimoen.dev>"]
 edition = "2018"
-
+build = "build.rs"
+links = "bloscsrc"
 
 [dependencies]
 
