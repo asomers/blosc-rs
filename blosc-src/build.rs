@@ -7,6 +7,7 @@ fn main() {
         "BUILD_TESTS",
         "BUILD_FUZZERS",
         "BUILD_BENCHMARKS",
+        "DEACTIVATE_ZSTD",
     ] {
         cfg.define(option, "OFF");
     }
