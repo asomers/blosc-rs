@@ -1,2 +1,2 @@
 [workspace]
-members = [ "blosc", "blosc-sys" ]
+members = [ "blosc", "blosc-sys", "blosc-src" ]

@@ -1,0 +1,11 @@
+[package]
+name = "blosc-src"
+version = "0.1.0"
+authors = ["Magnus Ulimoen <magnus@ulimoen.dev>"]
+edition = "2018"
+
+
+[dependencies]
+
+[build-dependencies]
+cmake = "0.1.44"
