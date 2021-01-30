@@ -12,6 +12,7 @@ documentation = "https://docs.rs/blosc-sys"
 categories = ["external-ffi-bindings"]
 keywords = ["compression"]
 links = "blosc"
+edition = "2018"
 
 [features]
 static = ["blosc-src"]
