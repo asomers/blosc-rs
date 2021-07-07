@@ -23,17 +23,15 @@ test_task:
     - name: nightly
       container:
         image: rustlang/rust:nightly
-      env:
-        CARGO_ARGS: --all-features
   cargo_cache:
     folder: $CARGO_HOME/registry
   env:
     LD_LIBRARY_PATH: /usr/local/lib
   << : *SETUP
   build_script:
-    - cargo build --all --verbose
+    - cargo build --verbose
   test_script:
-    - cargo test --all --verbose
+    - cargo test --verbose
   before_cache_script: rm -rf $CARGO_HOME/registry/index
  
 minver_task:
@@ -48,7 +46,7 @@ minver_task:
   << : *SETUP
   build_script:
     - cargo update -Zminimal-versions
-    - cargo check --all --all-targets
+    - cargo check --all-targets
   before_cache_script: rm -rf $CARGO_HOME/registry/index
 
 codecov_task:
@@ -76,6 +74,6 @@ codecov_task:
       fi
   kcov_script:
     - cargo check       # Ensure Cargo.lock exists
-    - cargo kcov --all --verbose -- --include-path='blosc/src'
+    - cargo kcov --verbose -- --include-path='blosc/src'
     - bash <(curl -s https://codecov.io/bash)
   before_cache_script: rm -rf $CARGO_HOME/registry/index
