@@ -5,4 +5,4 @@ bindgen --no-rustfmt-bindings \
 	--whitelist-type '.*BLOSC.*' \
 	--whitelist-function '.*blosc.*' \
 	--whitelist-var '.*BLOSC.*' /usr/local/include/blosc.h > src/bindgen.rs
-rustfmt --force --write-mode replace src/bindgen.rs
+rustfmt src/bindgen.rs
