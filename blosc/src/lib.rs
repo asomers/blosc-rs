@@ -94,9 +94,9 @@ pub enum Compressor {
     Invalid,
 }
 
-impl Into<*const c_char> for Compressor {
-    fn into(self) -> *const c_char {
-        let compref = match self {
+impl From<Compressor> for *const c_char {
+    fn from(compressor: Compressor) -> Self {
+        let compref = match compressor {
             Compressor::BloscLZ => BLOSC_BLOSCLZ_COMPNAME.as_ptr(),
             Compressor::LZ4 => BLOSC_LZ4_COMPNAME.as_ptr(),
             Compressor::LZ4HC => BLOSC_LZ4HC_COMPNAME.as_ptr(),
@@ -181,11 +181,11 @@ impl<T> Hash for Buffer<T> {
     }
 }
 
-impl<T> Into<Vec<u8>> for Buffer<T> {
+impl<T> From<Buffer<T>> for Vec<u8> {
     /// Transform `self` into a raw `Vec` of bytes.  After this, it can no
     /// longer be safely decompressed.
-    fn into(self) -> Vec<u8> {
-        self.data
+    fn from(buf: Buffer<T>) -> Self {
+        buf.data
     }
 }
 
