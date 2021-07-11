@@ -12,3 +12,7 @@ documentation = "https://docs.rs/blosc-sys"
 categories = ["external-ffi-bindings"]
 keywords = ["compression"]
 links = "blosc"
+exclude = [
+  "bindgen.sh",
+  "release.toml"
+]

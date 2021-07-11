@@ -11,6 +11,10 @@ Rust bindings to the C-BLOSC compression library
 documentation = "https://docs.rs/blosc"
 categories = ["api-bindings"]
 keywords = ["compression"]
+exclude = [
+  "release.toml",
+  "tests/**/*.rs"
+]
 
 [dependencies]
 blosc-sys = { version = "1.14.5-pre", path = "../blosc-sys" }
