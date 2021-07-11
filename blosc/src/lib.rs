@@ -26,10 +26,26 @@ extern crate libc;
 
 use blosc_sys::*;
 use std::convert::Into;
+use std::error;
+use std::fmt;
 use std::hash::{Hash, Hasher};
 use std::marker::PhantomData;
 use std::os::raw::{c_char, c_int, c_void};
 use std::{mem, ptr};
+
+/// An unspecified error from C-Blosc
+#[derive(Clone, Copy, Debug)]
+pub struct BloscError;
+
+impl fmt::Display for BloscError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "unspecified error from c-Blosc")
+    }
+}
+
+impl error::Error for BloscError {}
+
+pub type Result<T> = std::result::Result<T, BloscError>;
 
 /// The desired compression level.  Higher levels mean more compression.
 #[derive(Clone, Copy, Debug)]
@@ -197,7 +213,7 @@ impl Context {
     ///
     /// Returns an error if the `compressor` is not enabled in this build of
     /// C-Blosc.
-    pub fn compressor(mut self, compressor: Compressor) -> Result<Self, ()> {
+    pub fn compressor(mut self, compressor: Compressor) -> Result<Self> {
         let comp_ptr: *const c_char = compressor.into();
         let support = unsafe { blosc_get_complib_info(comp_ptr, ptr::null_mut(), ptr::null_mut()) };
         if support >= 0 {
@@ -205,7 +221,7 @@ impl Context {
             Ok(self)
         } else {
             // Compressor not supported
-            Err(())
+            Err(BloscError)
         }
     }
 
@@ -345,7 +361,7 @@ impl Default for Context {
 /// let compressed = ctx.compress(&data[..]);
 /// let decompressed: Vec<i16> = decompress(&compressed).unwrap();
 /// ```
-pub fn decompress<T>(src: &Buffer<T>) -> Result<Vec<T>, ()> {
+pub fn decompress<T>(src: &Buffer<T>) -> Result<Vec<T>> {
     unsafe { decompress_bytes(&src.data[..]) }
 }
 
@@ -373,7 +389,7 @@ pub fn decompress<T>(src: &Buffer<T>) -> Result<Vec<T>, ()> {
 /// let decompressed = unsafe{ decompress_bytes(&serialized[..])}.unwrap();
 /// assert_eq!(&[1, 2, 3], &decompressed[..]);
 /// ```
-pub unsafe fn decompress_bytes<T>(src: &[u8]) -> Result<Vec<T>, ()> {
+pub unsafe fn decompress_bytes<T>(src: &[u8]) -> Result<Vec<T>> {
     let typesize = mem::size_of::<T>();
     let mut nbytes: usize = 0;
     let mut _cbytes: usize = 0;
@@ -401,7 +417,7 @@ pub unsafe fn decompress_bytes<T>(src: &[u8]) -> Result<Vec<T>, ()> {
         Ok(dest)
     } else {
         // Buffer too small, data corrupted, decompressor not available, etc
-        Err(())
+        Err(BloscError)
     }
 }
 
