@@ -21,17 +21,16 @@
 //! assert_eq!(data, decompressed);
 //! ```
 
-extern crate blosc_sys;
-extern crate libc;
-
 use blosc_sys::*;
-use std::convert::Into;
-use std::error;
-use std::fmt;
-use std::hash::{Hash, Hasher};
-use std::marker::PhantomData;
-use std::os::raw::{c_char, c_int, c_void};
-use std::{mem, ptr};
+use std::{
+    convert::Into,
+    error,
+    fmt,
+    hash::{Hash, Hasher},
+    marker::PhantomData,
+    os::raw::{c_char, c_int, c_void},
+    {mem, ptr},
+};
 
 /// An unspecified error from C-Blosc
 #[derive(Clone, Copy, Debug)]
