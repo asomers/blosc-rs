@@ -1,14 +1,12 @@
 // vim: tw=80
 
-extern crate blosc;
-#[macro_use]
-extern crate galvanic_test;
-extern crate rand;
-
 use blosc::*;
-use std::collections::hash_map::DefaultHasher;
-use std::hash::{Hash, Hasher};
-use std::mem;
+use galvanic_test::{fixture, test_suite};
+use std::{
+    collections::hash_map::DefaultHasher,
+    hash::{Hash, Hasher},
+    mem,
+};
 
 #[test]
 fn test_invalid_compressor() {

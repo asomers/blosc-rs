@@ -3,6 +3,7 @@ name = "blosc"
 version = "0.1.4-pre"
 authors = ["Alan Somers <asomers@gmail.com>"]
 license = "MIT"
+edition = "2018"
 readme = "README.md"
 repository = "https://github.com/asomers/blosc-rs"
 description = """
