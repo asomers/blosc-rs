@@ -203,7 +203,7 @@ impl Context {
     /// Select the `Context`'s compression level.
     ///
     /// Higher values will give better compression at the expense of speed.
-    pub fn clevel(mut self, clevel: Clevel) -> Self {
+    pub const fn clevel(mut self, clevel: Clevel) -> Self {
         self.clevel = clevel;
         self
     }
@@ -276,7 +276,7 @@ impl Context {
     ///     .clevel(Clevel::L9)
     ///     .shuffle(ShuffleMode::Bit);
     /// ```
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Context {
             blocksize: 0,                    // Automatic blocksize
             clevel: Clevel::L2,              // Level 2 selects blocksize to equal L1 cache
@@ -287,7 +287,7 @@ impl Context {
     }
 
     /// Select which Shuffle filter to apply before compression.
-    pub fn shuffle(mut self, shuffle_mode: ShuffleMode) -> Self {
+    pub const fn shuffle(mut self, shuffle_mode: ShuffleMode) -> Self {
         self.shuffle_mode = shuffle_mode;
         self
     }
@@ -331,7 +331,7 @@ impl Context {
     /// let ctx = Context::new().typesize(Some(mem::size_of::<i16>()));
     /// ctx.compress(&serialized[..]);
     /// ```
-    pub fn typesize(mut self, typesize: Option<usize>) -> Self {
+    pub const fn typesize(mut self, typesize: Option<usize>) -> Self {
         self.typesize = typesize;
         self
     }
