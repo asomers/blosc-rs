@@ -15,7 +15,6 @@ test_task:
     folder: $CARGO_HOME/registry
   env:
     LD_LIBRARY_PATH: /usr/local/lib
-  << : *SETUP
   build_script:
     - cargo build --all --verbose
   test_script:
@@ -31,7 +30,6 @@ minver_task:
     image: rustlang/rust:nightly
   cargo_cache:
     folder: $CARGO_HOME/registry
-  << : *SETUP
   build_script:
     - cargo update -Zminimal-versions
     - cargo check --all --all-targets
@@ -49,7 +47,6 @@ codecov_task:
     CODECOV_TOKEN: ENCRYPTED[b5844fa7ff980377a0d9848d858cc64975037822048885ba18a40897254fb5a2e09f9332658195030b36471b40abfecb]
   cargo_cache:
     folder: $CARGO_HOME/registry
-  << : *SETUP
   setup_kcov_script:
     - cargo install cargo-kcov
     - |
