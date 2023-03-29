@@ -53,10 +53,4 @@ fn main() {
         "blosc"
     };
     builder.compile(linklib);
-    //println!("cargo:root={}", root);
-    //let incdir = format!("{}/include", root);
-    //println!("cargo:include={}", incdir);
-    //println!("cargo:library={}", linklib);
-    //println!("cargo:rustc-link-search=native={}/lib", root);
-    //println!("cargo:rustc-link-lib=static={}", linklib);
 }
