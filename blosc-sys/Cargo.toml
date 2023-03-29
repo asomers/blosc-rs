@@ -17,3 +17,6 @@ exclude = [
   "bindgen.sh",
   "release.toml"
 ]
+
+[build-dependencies]
+cc = "1.0"

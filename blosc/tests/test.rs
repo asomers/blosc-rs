@@ -35,7 +35,6 @@ test_suite! {
                 // All different compressors
                 (None, None, Clevel::L2, Compressor::BloscLZ, ShuffleMode::Byte),
                 (None, None, Clevel::L2, Compressor::LZ4HC, ShuffleMode::Byte),
-                (None, None, Clevel::L2, Compressor::Snappy, ShuffleMode::Byte),
                 (None, None, Clevel::L2, Compressor::Zlib, ShuffleMode::Byte),
                 (None, None, Clevel::L2, Compressor::Zstd, ShuffleMode::Byte),
                 // Shuffle options
