@@ -48,6 +48,7 @@ pub type Result<T> = std::result::Result<T, BloscError>;
 
 /// The desired compression level.  Higher levels mean more compression.
 #[derive(Clone, Copy, Debug)]
+#[repr(i32)]
 pub enum Clevel {
     /// No compression at all.
     ///
@@ -114,14 +115,15 @@ impl From<Compressor> for *const c_char {
 /// rearranges the array to put every entry's MSB together and every entry's LSB
 /// together, which improves the performance of every `Compressor`.
 #[derive(Clone, Copy, Debug)]
+#[repr(i32)]
 pub enum ShuffleMode {
     /// No shuffle.  Use this mode for data that is not an array.
-    None = BLOSC_NOSHUFFLE as isize,
+    None = BLOSC_NOSHUFFLE as i32,
 
     /// Byte shuffle.  Use this mode for most arrays.
     ///
     /// See [new-trends-in-storing-large-data-silos-in-python](https://speakerdeck.com/francescalted/new-trends-in-storing-large-data-silos-in-python)
-    Byte = BLOSC_SHUFFLE as isize,
+    Byte = BLOSC_SHUFFLE as i32,
 
     /// Bit shuffle.
     ///
@@ -131,7 +133,7 @@ pub enum ShuffleMode {
     /// compression is desired.
     ///
     /// See [new-bitshuffle-filter](http://blosc.org/posts/new-bitshuffle-filter/)
-    Bit = BLOSC_BITSHUFFLE as isize,
+    Bit = BLOSC_BITSHUFFLE as i32,
 }
 
 /// Holds basic settings for `compress` operations.
