@@ -33,7 +33,7 @@ use std::{
 };
 
 /// An unspecified error from C-Blosc
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct BloscError;
 
 impl fmt::Display for BloscError {
@@ -418,6 +418,29 @@ pub unsafe fn decompress_bytes<T>(src: &[u8]) -> Result<Vec<T>> {
         Ok(dest)
     } else {
         // Buffer too small, data corrupted, decompressor not available, etc
+        Err(BloscError)
+    }
+}
+
+/// Checks that the compressed buffer may contain valid blosc compressed data.
+/// On success, returns the size that the uncompressed data would have.
+/// ```
+/// # use blosc::*;
+/// let data: Vec<u16> = vec![1, 2, 3, 65535];
+/// let ctx = Context::new();
+/// let compressed = ctx.compress(&data[..]);
+/// assert_eq!(Ok(8), validate(compressed.as_ref()));
+/// ```
+pub fn validate(src: &[u8]) -> Result<usize> {
+    let mut len: usize = 0;
+    let r = unsafe { blosc_cbuffer_validate(
+        src.as_ptr() as *const c_void,
+        src.len(),
+        &mut len as *mut usize
+    )};
+    if r == 0 {
+        Ok(len)
+    } else {
         Err(BloscError)
     }
 }

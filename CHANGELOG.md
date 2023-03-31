@@ -5,6 +5,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased] - ReleaseDate
 ### Added
+
+- Added `validate`, which requires c-blosc 1.16.0 or later
+  ([#23](https://github.com/nix-rust/nix/pull/23))
+
 ### Changed
 
 - `Context::{clevel,new,shuffle,typesize}` are all const now.
