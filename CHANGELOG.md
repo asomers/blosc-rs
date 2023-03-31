@@ -10,6 +10,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - `Context::{clevel,new,shuffle,typesize}` are all const now.
   ([#16](https://github.com/nix-rust/nix/pull/16))
 
+- The MSRV is now 1.60.0
+  ([#22](https://github.com/nix-rust/nix/pull/22))
+
 ### Fixed
 
 - All public methods now return error types that implement std::error::Error.
