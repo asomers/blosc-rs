@@ -22,7 +22,7 @@ task:
         image: rust:latest
     - name: Linux nightly
       container:
-        image: rustlang/rust:nightly
+        image: rustlang/rust:nightly-bullseye
     - name: Linux MSRV
       container:
         image: rust:1.60.0

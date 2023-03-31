@@ -67,3 +67,21 @@ fn test_buffer_hash() {
     slice_hasher.write(compressed.as_ref());
     assert_eq!(buffer_hasher.finish(), slice_hasher.finish());
 }
+
+mod validate {
+    use super::*;
+
+    #[test]
+    fn ok() {
+        let data: Vec<u16> = vec![1, 2, 3, 65535];
+        let ctx = Context::new();
+        let compressed = ctx.compress(&data[..]);
+        assert_eq!(Ok(8), validate(compressed.as_ref()));
+    }
+
+    #[test]
+    fn err() {
+        let compressed = vec![0u8; 8];
+        validate(compressed.as_ref()).unwrap_err();
+    }
+}
