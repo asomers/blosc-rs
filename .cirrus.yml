@@ -40,17 +40,6 @@ task:
   << : *BUILD
   before_cache_script: rm -rf $CARGO_HOME/registry/index
 
-
-task:
-  name: FreeBSD 13 stable
-  freebsd_instance:
-    image: freebsd-13-1-release-amd64
-  env:
-    LD_LIBRARY_PATH: /usr/local/lib
-  << : *FREEBSD_SETUP
-  << : *BUILD
-  before_cache_script: rm -rf $CARGO_HOME/registry/index
-
 task:
   name: Minver
   depends_on:
