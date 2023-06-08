@@ -24,8 +24,7 @@
 use blosc_sys::*;
 use std::{
     convert::Into,
-    error,
-    fmt,
+    error, fmt,
     hash::{Hash, Hasher},
     marker::PhantomData,
     os::raw::{c_char, c_int, c_void},
@@ -47,7 +46,7 @@ impl error::Error for BloscError {}
 pub type Result<T> = std::result::Result<T, BloscError>;
 
 /// The desired compression level.  Higher levels mean more compression.
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq, PartialOrd, Eq, Ord)]
 #[repr(i32)]
 pub enum Clevel {
     /// No compression at all.
@@ -114,7 +113,7 @@ impl From<Compressor> for *const c_char {
 /// The Shuffle operation is the key to efficiently compressing arrays.  It
 /// rearranges the array to put every entry's MSB together and every entry's LSB
 /// together, which improves the performance of every `Compressor`.
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[repr(i32)]
 pub enum ShuffleMode {
     /// No shuffle.  Use this mode for data that is not an array.
@@ -138,7 +137,7 @@ pub enum ShuffleMode {
 
 /// Holds basic settings for `compress` operations.
 // LCOV_EXCL_START
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Context {
     blocksize: usize,
     clevel: Clevel,
@@ -433,11 +432,13 @@ pub unsafe fn decompress_bytes<T>(src: &[u8]) -> Result<Vec<T>> {
 /// ```
 pub fn validate(src: &[u8]) -> Result<usize> {
     let mut len: usize = 0;
-    let r = unsafe { blosc_cbuffer_validate(
-        src.as_ptr() as *const c_void,
-        src.len(),
-        &mut len as *mut usize
-    )};
+    let r = unsafe {
+        blosc_cbuffer_validate(
+            src.as_ptr() as *const c_void,
+            src.len(),
+            &mut len as *mut usize,
+        )
+    };
     if r == 0 {
         Ok(len)
     } else {
