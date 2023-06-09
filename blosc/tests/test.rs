@@ -33,20 +33,20 @@ fn round_trip(
     #[case] typesize: Option<usize>,
     #[case] clevel: Clevel,
     #[case] compressor: Compressor,
-    #[case] shuffle_mode: ShuffleMode
+    #[case] shuffle_mode: ShuffleMode,
 ) {
     let ctx = Context::new()
         .blocksize(blocksize)
         .clevel(clevel)
-        .compressor(compressor).unwrap()
+        .compressor(compressor)
+        .unwrap()
         .shuffle(shuffle_mode)
         .typesize(typesize);
     let distribution = Uniform::new(1000u32, 2000u32);
     let mut rng = rand::thread_rng();
-    let sample = (0..10).map(|_| {
-        distribution.sample(&mut rng)
-    }).collect::<Vec<_>>();
-
+    let sample = (0..10)
+        .map(|_| distribution.sample(&mut rng))
+        .collect::<Vec<_>>();
 
     let encoded = ctx.compress(&sample[..]);
     let srclen = sample.len() * mem::size_of::<u32>();
