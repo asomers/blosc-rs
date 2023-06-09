@@ -68,6 +68,7 @@ fn test_buffer_hash() {
     assert_eq!(buffer_hasher.finish(), slice_hasher.finish());
 }
 
+#[cfg(test)]
 mod validate {
     use super::*;
 
