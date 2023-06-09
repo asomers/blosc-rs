@@ -4,10 +4,12 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased] - ReleaseDate
+
 ### Added
 
 - Added `validate`, which requires c-blosc 1.16.0 or later
   ([#23](https://github.com/nix-rust/nix/pull/23))
+- Implemented `(Partial)Eq` on `Clevel`, `ShuffleMode`, `Context`; `(Partial)Ord` on `Clevel` ([#25](https://github.com/asomers/blosc-rs/pull/25))
 
 ### Changed
 
