@@ -228,7 +228,7 @@ impl Context {
     /// Compress an array and return a newly allocated compressed buffer.
     pub fn compress<T>(&self, src: &[T]) -> Buffer<T> {
         let typesize = self.typesize.unwrap_or(mem::size_of::<T>());
-        let src_size = src.len() * mem::size_of::<T>();
+        let src_size = mem::size_of_val(src);
         let dest_size = src_size + BLOSC_MAX_OVERHEAD as usize;
         let mut dest: Vec<u8> = Vec::with_capacity(dest_size);
         let rsize = unsafe {
