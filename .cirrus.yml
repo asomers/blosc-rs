@@ -75,6 +75,7 @@ task:
     image: rustlang/rust:nightly
   << : *LINUX_SETUP
   extra_setup_script:
+    - rustup component add clippy
     - cargo install cargo-audit
   cargo_cache:
     folder: $CARGO_HOME/registry
