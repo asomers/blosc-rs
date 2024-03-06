@@ -30,7 +30,7 @@ task:
 task:
   name: FreeBSD 13 stable
   freebsd_instance:
-    image: freebsd-13-2-release-amd64
+    image: freebsd-13-3-release-amd64
   env:
     LD_LIBRARY_PATH: /usr/local/lib
   << : *FREEBSD_SETUP
