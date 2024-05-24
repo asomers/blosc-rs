@@ -16,7 +16,7 @@ want to use it directly.
 ```toml
 # Cargo.toml
 [dependencies]
-blosc = "0.1"
+blosc = "0.2"
 ```
 
 ```rust
