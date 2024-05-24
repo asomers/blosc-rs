@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased] - ReleaseDate
+
+### Added
+
+- More descriptive error messages
+  ([#32](https://github.com/asomers/blosc-rs/pull/32))
+
 ## [0.2.0] - 2023-06-09
 
 ### Added
