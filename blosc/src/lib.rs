@@ -24,24 +24,23 @@
 use blosc_sys::*;
 use std::{
     convert::Into,
-    error, fmt,
     hash::{Hash, Hasher},
     marker::PhantomData,
     os::raw::{c_char, c_int, c_void},
     {mem, ptr},
 };
+use thiserror::Error;
 
 /// An unspecified error from C-Blosc
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub struct BloscError;
-
-impl fmt::Display for BloscError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "unspecified error from c-Blosc")
-    }
+#[derive(Clone, Copy, Debug, Error, Eq, PartialEq)]
+pub enum BloscError {
+    #[error("Compressor not supported by this build of c-Blosc")]
+    CompressorNotSupported,
+    #[error("Not a valid Blosc buffer")]
+    ValidationError,
+    #[error("unspecified error from c-Blosc")]
+    Unspecified,
 }
-
-impl error::Error for BloscError {}
 
 pub type Result<T> = std::result::Result<T, BloscError>;
 
@@ -70,6 +69,7 @@ const BLOSC_INVALID_COMPNAME: &[u8; 8usize] = b"invalid\0";
 ///
 /// Under the hood, Blosc supports several different compression algorithms.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+#[allow(clippy::manual_non_exhaustive)]
 pub enum Compressor {
     /// The default compressor, based on FastLZ.  It's very fast, but the
     /// compression isn't as good as the other compressors.
@@ -220,8 +220,7 @@ impl Context {
             self.compressor = compressor;
             Ok(self)
         } else {
-            // Compressor not supported
-            Err(BloscError)
+            Err(BloscError::CompressorNotSupported)
         }
     }
 
@@ -417,7 +416,7 @@ pub unsafe fn decompress_bytes<T>(src: &[u8]) -> Result<Vec<T>> {
         Ok(dest)
     } else {
         // Buffer too small, data corrupted, decompressor not available, etc
-        Err(BloscError)
+        Err(BloscError::Unspecified)
     }
 }
 
@@ -442,7 +441,7 @@ pub fn validate(src: &[u8]) -> Result<usize> {
     if r == 0 {
         Ok(len)
     } else {
-        Err(BloscError)
+        Err(BloscError::ValidationError)
     }
 }
 
