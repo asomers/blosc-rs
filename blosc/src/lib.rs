@@ -70,6 +70,7 @@ const BLOSC_INVALID_COMPNAME: &[u8; 8usize] = b"invalid\0";
 ///
 /// Under the hood, Blosc supports several different compression algorithms.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+#[allow(clippy::manual_non_exhaustive)]
 pub enum Compressor {
     /// The default compressor, based on FastLZ.  It's very fast, but the
     /// compression isn't as good as the other compressors.
