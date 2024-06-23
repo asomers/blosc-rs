@@ -50,7 +50,7 @@ task:
   cargo_cache:
     folder: $CARGO_HOME/registry
   build_script:
-    - cargo update -Zminimal-versions
+    - cargo update -Zdirect-minimal-versions
     - cargo check --all --all-targets
   before_cache_script: rm -rf $CARGO_HOME/registry/index
     
