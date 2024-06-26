@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased] - ReleaseDate
+
+### Removed
+
+- Removed the ability to use `decompress` on types that aren't `Copy`.  Doing
+  that could result in running destructors twice.
+  ([#35](https://github.com/asomers/blosc-rs/pull/35))
+
 ## [0.2.1] - 2024-05-24
 
 ### Added

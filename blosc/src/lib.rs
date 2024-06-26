@@ -360,7 +360,7 @@ impl Default for Context {
 /// let compressed = ctx.compress(&data[..]);
 /// let decompressed: Vec<i16> = decompress(&compressed).unwrap();
 /// ```
-pub fn decompress<T>(src: &Buffer<T>) -> Result<Vec<T>> {
+pub fn decompress<T: Copy>(src: &Buffer<T>) -> Result<Vec<T>> {
     unsafe { decompress_bytes(&src.data[..]) }
 }
 
@@ -373,9 +373,8 @@ pub fn decompress<T>(src: &Buffer<T>) -> Result<Vec<T>> {
 ///
 /// This function is `unsafe` because it can transmute data into an arbitrary
 /// type.  That can cause memory errors if the type parameter contains
-/// references, pointers, or does anything interesting on `Drop`.  To use
-/// safely, the caller must ensure that the serialized data really was created
-/// by Blosc, with the correct type.
+/// references or pointers.  To use safely, the caller must ensure that the
+/// serialized data really was created by Blosc, with the correct type.
 ///
 /// This function is also unsafe if the compressed buffer is untrusted.  See
 /// [Blosc issue #229](https://github.com/Blosc/c-blosc/issues/229).
@@ -388,7 +387,7 @@ pub fn decompress<T>(src: &Buffer<T>) -> Result<Vec<T>> {
 /// let decompressed = unsafe{ decompress_bytes(&serialized[..])}.unwrap();
 /// assert_eq!(&[1, 2, 3], &decompressed[..]);
 /// ```
-pub unsafe fn decompress_bytes<T>(src: &[u8]) -> Result<Vec<T>> {
+pub unsafe fn decompress_bytes<T: Copy>(src: &[u8]) -> Result<Vec<T>> {
     let typesize = mem::size_of::<T>();
     let mut nbytes: usize = 0;
     let mut _cbytes: usize = 0;
