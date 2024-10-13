@@ -80,6 +80,6 @@ task:
   cargo_cache:
     folder: $CARGO_HOME/registry
   build_script:
-    - cargo clippy --all-targets
     - cargo audit
+    - cargo clippy --all-targets
   before_cache_script: rm -rf $CARGO_HOME/registry/index
