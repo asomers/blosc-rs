@@ -51,7 +51,7 @@ fn round_trip(
     let encoded = ctx.compress(&sample[..]);
     let srclen = sample.len() * mem::size_of::<u32>();
     let ratio = srclen as f64 / encoded.size() as f64;
-    println!("Compression ratio: {}", ratio);
+    println!("Compression ratio: {ratio}");
     let decoded = decompress(&encoded).unwrap();
     assert_eq!(sample, decoded);
 }
