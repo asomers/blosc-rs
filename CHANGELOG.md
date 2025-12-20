@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [Unreleased] - ReleaseDate
+## [0.3.1] - 2025-12-20
 
 - This final release serves only to mark the crate as deprecated in crates.io's
   metadata.

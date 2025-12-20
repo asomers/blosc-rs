@@ -1,6 +1,6 @@
 [package]
 name = "blosc"
-version = "0.3.0"
+version = "0.3.1"
 authors = ["Alan Somers <asomers@gmail.com>"]
 license = "MIT"
 edition = "2018"
