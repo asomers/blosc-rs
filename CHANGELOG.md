@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased] - ReleaseDate
+
+- This final release serves only to mark the crate as deprecated in crates.io's
+  metadata.
+  ([#38](https://github.com/asomers/blosc-rs/pull/38))
+
 ## [0.3.0] - 2025-12-20
 
 ### Removed
