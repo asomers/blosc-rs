@@ -17,6 +17,9 @@ exclude = [
   "tests/**/*.rs"
 ]
 
+[badges]
+maintenance = { status = "deprecated" }
+
 [dependencies]
 blosc-sys = { version = "1.21.0", path = "../blosc-sys" }
 libc = "0.2.29"
